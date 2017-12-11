@@ -1,14 +1,16 @@
 package com.company;
 
+import javax.management.BadAttributeValueExpException;
 import java.util.Stack;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Calculator {
     private Stack<Character> operator = new Stack();
     private Stack<Double> operand  = new Stack();
 
-    public double calculate(String in) {
-        in=clearString(in);
+    public double calculate(String in)  {
+        in=checkString(in);
         String[] operators=getOperators(in);
         String tmp;
         for (int i=0;i<operators.length;i++){
@@ -30,7 +32,13 @@ public class Calculator {
         return operand.peek();
 
     }
-    private String clearString(String in){
+    private String checkString(String in){
+        in=in.replaceAll(",",".");
+        Pattern pattern = Pattern.compile("[^.()0-9+*/-]");
+        Matcher m = pattern.matcher(in);
+        if (m.find( )){
+            throw new IllegalArgumentException("your expression contains letters");
+        }
         return in.replaceAll("\\s+", "");
     }
     private String[] getOperators(String in){
@@ -103,6 +111,9 @@ public class Calculator {
         return a-b;
     }
     private double qoutirent(double a,double b){
+        if (b==0){
+            throw new IllegalArgumentException("Deviding on 0 is black magic");
+        }
         return a/b;
     }
     private double product(double a,double b){

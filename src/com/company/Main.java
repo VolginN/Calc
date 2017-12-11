@@ -7,6 +7,10 @@ public class Main {
         Scanner in = new Scanner(System.in);
         String str= in.nextLine();
         Calculator calc = new Calculator();
-        System.out.println(calc.calculate(str));
+        try {
+            System.out.println(calc.calculate(str));
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+        }
     }
 }
