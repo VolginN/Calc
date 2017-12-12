@@ -91,6 +91,8 @@ public class CalculatorTest {
     @org.junit.Test
     public void CalculateManyActions() {
         assertEquals(calc.calculate("10.12315 + 456489 - (145 / 56987.1564 * 78549.1234) * ((((45.268 * 789 + 65.241))))"),-6694936.66499,0.011);
+        assertEquals(calc.calculate("60/60+0/80-80/80"),(double) 0,0.011);
+        assertEquals(calc.calculate("(1*869)/(6-9.123466)*(7/0.2365)-(78*96654.1232+(456)-(96547)+123)*5"),-37223502.7879,0.011);
     }
 
 }
