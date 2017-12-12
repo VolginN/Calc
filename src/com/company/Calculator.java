@@ -34,12 +34,13 @@ public class Calculator {
     }
     private String checkString(String in){
         in=in.replaceAll(",",".");
+        in=in.replaceAll("\\s+", "");
         Pattern pattern = Pattern.compile("[^.()0-9+*/-]");
         Matcher m = pattern.matcher(in);
         if (m.find( )){
             throw new IllegalArgumentException("your expression contains letters");
         }
-        return in.replaceAll("\\s+", "");
+        return in;
     }
     private String[] getOperators(String in){
         Pattern pattern = Pattern.compile("\\d+\\.{0,1}\\d{0,}");
