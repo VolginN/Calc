@@ -1,123 +1,133 @@
 package com.company;
 
-import javax.management.BadAttributeValueExpException;
-import java.util.Stack;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Calculator {
     private Stack<Character> operator = new Stack();
     private Stack<Double> operand  = new Stack();
+    String[] operators;
+    ArrayList<Double> operandList;
+    private Ariphmetic ariphmetic= new Ariphmetic();
+    private MathStringCleaner mathStringCleaner= new MathStringCleaner();
+    public double calculate(String in){
+        in=mathStringCleaner.checkString(in);
+        parseString(in);
+        if (operators.length==0) {
+            return operandList.get(0);
+        }
 
-    public double calculate(String in)  {
-        in=checkString(in);
-        String[] operators=getOperators(in);
-        String tmp;
-        for (int i=0;i<operators.length;i++){
-            tmp=in.substring(0,in.indexOf(operators[i]));
-            if (tmp.length()>0) {
-                operand.push(Double.parseDouble(tmp));
-            }
-            for (int j=0;j<operators[i].length();j++) {
-                pushOperator(operators[i].charAt(j));
-            }
-            in=in.substring(in.indexOf(operators[i])+operators[i].length());
+        for( int i=0;i<operandList.size();i++){
+            pushOperator(operators[i]);
+            operand.push(operandList.get(i));
         }
-        if (in.length()!=0) {
-            operand.push(Double.parseDouble(in));
+
+        if (operators.length>operandList.size()){
+            pushOperator(operators[operandList.size()]);
         }
+
         while (!operator.empty()) {
             executeOperation();
         }
-        return operand.peek();
 
+        return operand.peek();
     }
-    private String checkString(String in){
-        in=in.replaceAll(",",".");
-        in=in.replaceAll("\\s+", "");
-        Pattern pattern = Pattern.compile("[^.()0-9+*/-]");
-        Matcher m = pattern.matcher(in);
-        if (m.find( )){
-            throw new IllegalArgumentException("your expression contains letters");
+    private void parseString(String in) {
+        operators=getOperators(in);
+        operandList=getOperands(in);
+        if ((operators.length>0)&&(operators[0].equals("-"))){
+            operators[0]="";
+            operandList.set(0,operandList.get(0)*(-1));
         }
-        return in;
+        for (int i=1;i<operators.length;i++){
+            if (operators[i].indexOf("(-")!=-1){
+                operators[i]=operators[i].substring(0,operators[i].length()-1);
+                operandList.set(i,operandList.get(i)*(-1));
+            }
+        }
     }
     private String[] getOperators(String in){
         Pattern pattern = Pattern.compile("\\d+\\.{0,1}\\d{0,}");
         return pattern.split(in);
     }
+    private ArrayList<Double> getOperands(String in){
+        Pattern pattern = Pattern.compile("(\\d+([.]\\d+){0,1})");
+        Matcher m = pattern.matcher(in);
+        ArrayList<Double> list = new ArrayList();
+        while(m.find()){
+            list.add(Double.parseDouble(m.group()));
+        }
+        return list;
+    }
+    private void pushOperator(String insertOperators){
+        char oper;
+        for (int j=0;j<insertOperators.length();j++) {
+            oper = insertOperators.charAt(j);
+            pushOperator(oper);
+        }
+    }
     private void pushOperator(char oper){
-            if (operator.empty()){
-                operator.push(oper);
-                return;
-            }
+        if (operator.empty()) {
+            operator.push(oper);
+            return;
+        }
 
-            if (oper=='(') {
-                operator.push(oper);
-                return;
-            }
+        if (oper == '(') {
+            operator.push(oper);
+            return;
+        }
 
-            if (oper==')'){
-                while (!(operator.peek()=='(')){
-                    executeOperation();
-                }
-                operator.pop();
-                return;
-            }
-
-            while ((!operator.empty())&&operator.peek()!='('&&((computeWeight(oper))>=(computeWeight(operator.peek())))){
+        if (oper == ')') {
+            while (!(operator.peek() == '(')) {
                 executeOperation();
             }
-
-            operator.push(oper);
+            operator.pop();
+            return;
         }
+
+        while ((!operator.empty()) && operator.peek() != '(' && ((computeWeight(oper)) >= (computeWeight(operator.peek())))) {
+            executeOperation();
+        }
+        operator.push(oper);
+    }
     private void executeOperation(){
         double tmp;
         switch (operator.pop()){
             case '+':
-                operand.push(sum(operand.pop(),operand.pop()));
+                operand.push(ariphmetic.sum(operand.pop(),operand.pop()));
                 break;
             case '-':
                 tmp=operand.pop();
-                operand.push(difference(operand.pop(),tmp));
+                operand.push(ariphmetic.difference(operand.pop(),tmp));
                 break;
             case '*':
-                operand.push(product(operand.pop(),operand.pop()));
+                operand.push(ariphmetic.product(operand.pop(),operand.pop()));
                 break;
             case '/':
                 tmp=operand.pop();
-                operand.push(qoutirent(operand.pop(),tmp));
+                operand.push(ariphmetic.qoutirent(operand.pop(),tmp));
+                break;
+            case '^':
+                tmp=operand.pop();
+                operand.push(ariphmetic.exponent(operand.pop(),tmp));
                 break;
         }
     }
     private int computeWeight(char oper){
         switch (oper){
             case '+':
-                 return 2;
+                 return 3;
             case '-':
-                return 2;
+                return 3;
             case '*':
-                return 1;
+                return 2;
             case '/':
+                return 2;
+            case '^':
                 return 1;
-            case '(':
-                return 0;
         }
         return -1;
     }
-    private double sum(double a,double b){
-        return a+b;
-    }
-    private double difference(double a,double b){
-        return a-b;
-    }
-    private double qoutirent(double a,double b){
-        if (b==0){
-            throw new IllegalArgumentException("Deviding on 0 is black magic");
-        }
-        return a/b;
-    }
-    private double product(double a,double b){
-        return a*b;
-    }
+
 }

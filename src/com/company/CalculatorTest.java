@@ -8,9 +8,9 @@ public class CalculatorTest {
 
     @org.junit.Test
     public void SimpleCalculate() throws IllegalArgumentException {
-        assertEquals(calc.calculate("3+2"),(double)5,0.011);
+        assertEquals(calc.calculate("-3+2"),(double)-1,0.011);
         assertEquals(calc.calculate("1.1212+3.654"),4.7752,0.011);
-        assertEquals(calc.calculate("1-2"),(double)-1,0.011);
+        assertEquals(calc.calculate("1-(-2)"),(double)3,0.011);
         assertEquals(calc.calculate("7.999-5.888"),2.111,0.011);
         assertEquals(calc.calculate("3*8"),(double)24,0.011);
         assertEquals(calc.calculate("3.568*4.568"),16.298,0.011);
@@ -95,4 +95,9 @@ public class CalculatorTest {
         assertEquals(calc.calculate("(1*869)/(6-9.123466)*(7/0.2365)-(78*96654.1232+(456)-(96547)+123)*5"),-37223502.7879,0.011);
     }
 
+    public void Exponent(){
+        assertEquals(calc.calculate("2^3"),8D,0.11);
+        assertEquals(calc.calculate("4*((1+2))^5"),972,0.11);
+        assertEquals(calc.calculate("4,595^0.526"),84.403835282,0.11);
+    }
 }
